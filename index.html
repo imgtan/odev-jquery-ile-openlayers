@@ -7,14 +7,19 @@
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css">
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="index.css">
     </link>
-
     <title>OpenLayers Odev</title>
 </head>
 
 <body>
-    <h2 class="header">Belsis Yazılım</h2>
+    <div>
+        <div><img class="imgIcon"
+                src="https://media-exp1.licdn.com/dms/image/C560BAQEnlb0HPWt_DA/company-logo_200_200/0/1522420792119?e=2159024400&v=beta&t=Hr56rqJZN_JApaLmrJ9QLFMqxrH4QN5dXliCJ5Eh42Y"
+                alt="Belsis Yazılım"></div>
+        <h2 class="header">Belsis Yazılım</h2>
+    </div>
     <div id="map" class="map"></div> <!-- Ekrana harita bastıldı -->
     <label for="type" class="parselTypeLabel">Geometry type:</label>
     <select class="parselBtn" id="type">
@@ -22,9 +27,30 @@
         <option class="parselOption" value="Point">Point</option>
         <option class="parselOption" value="LineString">LineString</option>
     </select>
+    <button class="parselBtn" id="editParsel">Edit</button>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="formSave">
+                <form>
+                    <label for="fname">Şehir</label>
+                    <input type="text" id="il">
+
+                    <label for="lname">İlçe</label>
+                    <input type="text" id="ilce">
+
+                    <label for="lname">Mahalle</label>
+                    <input type="text" id="mahalle">
+                </form>
+            </div>
+            <button class="btnParselSave" id="saveParsel">Parseli Kaydet</button>
+            <!-- onclick="saveParsel()" -->
+        </div>
+    </div>
 </body>
 <script type="text/javascript">
-
+    var wkt = new ol.format.WKT()
+    var feature, wktString;
     const raster = new ol.layer.Tile({
         source: new ol.source.OSM(),
     });
@@ -35,7 +61,7 @@
         source: kaynak,
         style: new ol.style.Style({
             fill: new ol.style.Fill({
-                color: 'rgba(255, 255, 255, 0.2)',
+                color: 'rgba(255, 255, 255, 0.5)',
             }),
             stroke: new ol.style.Stroke({
                 color: '#ffcc33',
@@ -54,14 +80,10 @@
 
     var map = new ol.Map({
         target: 'map',
-        layers: [
-            new ol.layer.Tile({
-                source: new ol.source.OSM()
-            }), raster, vector
-        ],
+        layers: [raster, vector],
         view: new ol.View({
             center: ol.proj.fromLonLat([37.41, 8.82]),
-            zoom: 4
+            zoom: 0
         })
     });
 
@@ -84,8 +106,104 @@
         map.addInteraction(draw);
         snap = new ol.interaction.Snap({ source: kaynak });
         map.addInteraction(snap);
+        draw.on('drawend', drawend);
     }
+    //----------------------------------------------------------------------------------------
+    //Modal start
+
+    var modal = document.getElementById("myModal");
+
+    var span = document.getElementsByClassName("close")[0];
+
+    // Modal açma
+    function modalOpen() {
+        modal.style.display = "block";
+    }
+
+    // İcona tıklayınca modal kapanır
+    span.onclick = function () {
+        document.getElementById('il').value = " "
+        document.getElementById('ilce').value = " "
+        document.getElementById('mahalle').value = " "
+
+        var a = kaynak.getFeatures();
+        var b = a[a.length - 1];
+        kaynak.removeFeature(b);
+
+        modal.style.display = "none";
+    }
+
+    // Herhangi bir yere tıklayınca modal kapanır
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            document.getElementById('il').value = " "
+            document.getElementById('ilce').value = " "
+            document.getElementById('mahalle').value = " "
+
+            var a = kaynak.getFeatures();
+            var b = a[a.length - 1];
+            kaynak.removeFeature(b);
+
+            modal.style.display = "none";
+        }
+    }
+
+    //Modal finish
+    //----------------------------------------------------------------------------------------
+
     addInteractions()
+
+    function drawend(evt) {
+        modalOpen()
+        feature = evt.feature;
+        //var x = feature.getGeometry().getCoordinates()
+        wktString = wkt.writeFeature(feature);
+    }
+
+    $(document).ready(function () {
+        $.ajax({
+            type: "get",
+            url: "https://localhost:44393/api/Parsel/all",
+            success: parselList
+        });
+        $("#saveParsel").click(function () {
+            modal.style.display = "none";
+            var il = document.getElementById('il').value
+            var ilce = document.getElementById('ilce').value
+            var mahalle = document.getElementById('mahalle').value
+            var wktS = wktString
+            let parselJson = { parselIl: il, parselIlce: ilce, pareselMahalle: mahalle, wktString: wktS }
+            $.ajax({
+                type: "post",
+                url: "https://localhost:44393/api/Parsel/add",
+                //data: parselJson,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(parselJson),
+                success: successSave,
+                dataType: "json",
+            });
+        });
+        // $("#editParsel").click(function () {
+        //     map.removeInteraction(draw)
+        //     map.removeInteraction(snap)
+        //     durum = false
+        // });
+    });
+
+    function successSave(res) {
+        console.log("Kayıt başarılı")
+    }
+
+    function parselList(res) {
+        res.forEach(element => {
+            const featuree = wkt.readFeature(element.wktString, {
+                dataProjection: 'EPSG:3857',
+                featureProjection: 'EPSG:3857',
+            });
+            kaynak.addFeature(featuree)
+        });
+    }
+
 </script>
 
 </html>
