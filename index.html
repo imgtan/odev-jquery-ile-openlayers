@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css">
@@ -20,7 +19,7 @@
                 alt="Belsis Yazılım"></div>
         <h2 class="header">Belsis Yazılım</h2>
     </div>
-    <div id="map" class="map"></div> <!-- Ekrana harita bastıldı -->
+    <div id="map" class="map"></div> <!-- Ekrana harita bastırıldı -->
     <label for="type" class="parselTypeLabel">Geometry type:</label>
     <select class="parselBtn" id="type">
         <option class="parselOption" value="Polygon">Polygon</option>
@@ -96,6 +95,8 @@
         map.removeInteraction(draw);
         map.removeInteraction(snap);
         addInteractions();
+        map.un('click', callBack)
+
     };
 
     function addInteractions() {
@@ -159,14 +160,22 @@
         //var x = feature.getGeometry().getCoordinates()
         wktString = wkt.writeFeature(feature);
     }
-
+    function callBack (e) { //dbclick ??????
+                map.forEachFeatureAtPixel(e.pixel, function (feature) {
+                    // document.getElementById('il').value = feature.A.parselIl
+                    // document.getElementById('ilce').value = feature.A.parselIlce
+                    // document.getElementById('mahalle').value = feature.A.pareselMahalle
+                    console.log("asdasd")
+                    modalOpen()
+                })
+            }
     $(document).ready(function () {
-        $.ajax({
+        $.ajax({ //list
             type: "get",
             url: "https://localhost:44393/api/Parsel/all",
             success: parselList
         });
-        $("#saveParsel").click(function () {
+        $("#saveParsel").click(function () { //add
             modal.style.display = "none";
             var il = document.getElementById('il').value
             var ilce = document.getElementById('ilce').value
@@ -183,24 +192,33 @@
                 dataType: "json",
             });
         });
-        // $("#editParsel").click(function () {
-        //     map.removeInteraction(draw)
-        //     map.removeInteraction(snap)
-        //     durum = false
-        // });
+        $("#editParsel").click(function () { //edit
+            map.removeInteraction(draw)
+            map.removeInteraction(snap)
+            map.removeInteraction(event)
+            map.on('click', callBack)
+        });
     });
 
     function successSave(res) {
+        document.getElementById('il').value = " "
+        document.getElementById('ilce').value = " "
+        document.getElementById('mahalle').value = " "
         console.log("Kayıt başarılı")
     }
 
     function parselList(res) {
         res.forEach(element => {
-            const featuree = wkt.readFeature(element.wktString, {
+            const parsel = wkt.readFeature(element.wktString, {
                 dataProjection: 'EPSG:3857',
                 featureProjection: 'EPSG:3857',
             });
-            kaynak.addFeature(featuree)
+            parsel.set('parselId', element.parselId)
+            parsel.set('parselIl', element.parselIl)
+            parsel.set('parselIlce', element.parselIlce)
+            parsel.set('pareselMahalle', element.pareselMahalle)
+            parsel.set('wktString', element.wktString)
+            kaynak.addFeature(parsel)
         });
     }
 
