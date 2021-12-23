@@ -1,33 +1,37 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css">
-    <style>
-      .map {
-        height: 400px;
-        width: 100%;
-      }
-    </style>
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css" type="text/css">
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+    <link type="text/css" href="index.css"></link>
     <title>OpenLayers Odev</title>
-  </head>
-  <body>
-    <h2>My Map</h2>
+</head>
+<style>
+    .map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+<body>
+    <h2>Belsis Yazılım</h2>
     <div id="map" class="map"></div>
-    <script type="text/javascript">
-      var map = new ol.Map({
+</body>
+<script type="text/javascript">
+    var map = new ol.Map({
         target: 'map',
         layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM()
-          })
+            new ol.layer.Tile({
+                source: new ol.source.OSM()
+            })
         ],
         view: new ol.View({
-          center: ol.proj.fromLonLat([37.41, 8.82]),
-          zoom: 4
+            center: ol.proj.fromLonLat([37.41, 8.82]),
+            zoom: 4
         })
-      });
-    </script>
-  </body>
+    });
+</script>
+
 </html>
