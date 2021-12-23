@@ -46,6 +46,29 @@
             <!-- onclick="saveParsel()" -->
         </div>
     </div>
+
+    <!-- Trigger/Open The Modal -->
+    <button id="myBtnEdit">Open Modal</button>
+    <div id="myEditModal" class="modalUpdate">
+        <div class="modalUpdate-content">
+            <span class="closeUpdate">&times;</span>
+            <div class="formSave">
+                <form>
+                    <label for="fname">Şehir</label>
+                    <input type="text" id="ilEdit">
+
+                    <label for="lname">İlçe</label>
+                    <input type="text" id="ilceEdit">
+
+                    <label for="lname">Mahalle</label>
+                    <input type="text" id="mahalleEdit">
+                </form>
+            </div>
+            <button class="btnParselSave" id="updateParsel">Parseli Güncelle</button>
+            <button class="btnParselSave" id="deleteParsel">Parseli Sil</button>
+        </div>
+    </div>
+
 </body>
 <script type="text/javascript">
     var wkt = new ol.format.WKT()
@@ -116,7 +139,7 @@
 
     var span = document.getElementsByClassName("close")[0];
 
-    // Modal açma
+    // ModalSave açma
     function modalOpen() {
         modal.style.display = "block";
     }
@@ -134,24 +157,19 @@
         modal.style.display = "none";
     }
 
-    // Herhangi bir yere tıklayınca modal kapanır
-    window.onclick = function (event) {
-        if (event.target == modal) {
-            document.getElementById('il').value = " "
-            document.getElementById('ilce').value = " "
-            document.getElementById('mahalle').value = " "
-
-            var a = kaynak.getFeatures();
-            var b = a[a.length - 1];
-            kaynak.removeFeature(b);
-
-            modal.style.display = "none";
-        }
+    //ModalSave finish
+    //ModalEdit start
+    var modall = document.getElementById("myEditModal");
+    var btnn = document.getElementById("myBtnEdit");
+    var spann = document.getElementsByClassName("closeUpdate")[0];
+    btnn.onclick = function () {
+        modall.style.display = "block";
     }
-
-    //Modal finish
+    spann.onclick = function () {
+        modall.style.display = "none";
+    }
+    //ModalEdit finish
     //----------------------------------------------------------------------------------------
-
     addInteractions()
 
     function drawend(evt) {
@@ -160,15 +178,14 @@
         //var x = feature.getGeometry().getCoordinates()
         wktString = wkt.writeFeature(feature);
     }
-    function callBack (e) { //dbclick ??????
-                map.forEachFeatureAtPixel(e.pixel, function (feature) {
-                    // document.getElementById('il').value = feature.A.parselIl
-                    // document.getElementById('ilce').value = feature.A.parselIlce
-                    // document.getElementById('mahalle').value = feature.A.pareselMahalle
-                    console.log("asdasd")
-                    modalOpen()
-                })
-            }
+    function callBack(e) { //dbclick ??????
+        map.forEachFeatureAtPixel(e.pixel, function (feature) {
+            // document.getElementById('il').value = feature.A.parselIl
+            // document.getElementById('ilce').value = feature.A.parselIlce
+            // document.getElementById('mahalle').value = feature.A.pareselMahalle
+            console.log(feature.A.wktString)
+        })
+    }
     $(document).ready(function () {
         $.ajax({ //list
             type: "get",
@@ -195,9 +212,15 @@
         $("#editParsel").click(function () { //edit
             map.removeInteraction(draw)
             map.removeInteraction(snap)
-            map.removeInteraction(event)
+            // map.removeInteraction(event)
             map.on('click', callBack)
         });
+        $("#updateParsel").click(function (){
+            console.log("guncelleme...")
+        })
+        $("#deleteParsel").click(function (){
+            console.log("silme...")
+        })
     });
 
     function successSave(res) {
@@ -220,6 +243,24 @@
             parsel.set('wktString', element.wktString)
             kaynak.addFeature(parsel)
         });
+    }
+
+    // Herhangi bir yere tıklayınca modal kapanır
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            document.getElementById('il').value = " "
+            document.getElementById('ilce').value = " "
+            document.getElementById('mahalle').value = " "
+
+            var a = kaynak.getFeatures();
+            var b = a[a.length - 1];
+            kaynak.removeFeature(b);
+
+            modal.style.display = "none";
+        }
+        else if (event.target == modall) {
+            modall.style.display = "none";
+        }
     }
 
 </script>
