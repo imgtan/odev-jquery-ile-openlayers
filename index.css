@@ -1,0 +1,53 @@
+.map {
+    height: 400px;
+    width: 100%;
+}
+
+.parselBtn {
+    background-color: #f4511e;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 10px 27px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    margin-top: 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s;
+    /* Safari */
+    transition-duration: 0.4s;
+}
+
+.parselOption {
+    background-color: #86bb88;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 10px 27px;
+    text-align: left;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s;
+    /* Safari */
+    transition-duration: 0.4s;
+}
+
+.parselTypeLabel{
+    border-radius: 10px;
+    color: white;
+    padding: 8px;
+    font-family: Arial;
+    background-color: #04AA6D;
+}
+
+.header {
+    overflow: hidden;
+    background-color: #117982;
+    padding: 20px 10px;
+    color: #eaeaea;
+  }
