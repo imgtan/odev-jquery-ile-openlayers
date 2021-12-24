@@ -114,14 +114,17 @@
     const typeSelect = document.getElementById('type');
 
     typeSelect.onchange = function () {
-        map.removeInteraction(draw);
-        map.removeInteraction(snap);
-        addInteractions();
-        map.un('click', callBack)
-
+        if (typeSelect.value) {
+            map.removeInteraction(draw);
+            map.removeInteraction(snap);
+            addInteractions();
+            map.un('click', callBack)
+        }
     };
 
     function addInteractions() {
+        console.log(typeSelect.value || "Polygon")
+
         draw = new ol.interaction.Draw({
             source: kaynak,
             type: typeSelect.value,
@@ -130,6 +133,7 @@
         snap = new ol.interaction.Snap({ source: kaynak });
         map.addInteraction(snap);
         draw.on('drawend', drawend);
+
     }
     //----------------------------------------------------------------------------------------
     //Modal start
@@ -257,7 +261,9 @@
         b.set('pareselMahalle', document.getElementById('mahalle').value)
         b.set('wktString', wktString)
 
-
+        document.getElementById('il').value = " "
+        document.getElementById('ilce').value = " "
+        document.getElementById('mahalle').value = " "
 
         console.log("Kayıt başarılı")
     }
@@ -270,6 +276,9 @@
                 element.A.parselIl = document.getElementById('ilEdit').value
                 element.A.parselIlce = document.getElementById('ilceEdit').value
                 element.A.pareselMahalle = document.getElementById('mahalleEdit').value
+                document.getElementById('ilEdit').value = " "
+                document.getElementById('ilceEdit').value = " "
+                document.getElementById('mahalleEdit').value = " "
             }
         });
         console.log("güncelleme başarılı")
