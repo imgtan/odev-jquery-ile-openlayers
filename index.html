@@ -71,6 +71,7 @@
     var wkt = new ol.format.WKT()
     var feature, wktString;
     var editWktString, editId;
+    var deleteId;
     const raster = new ol.layer.Tile({
         source: new ol.source.OSM(),
     });
@@ -161,6 +162,7 @@
     var spann = document.getElementsByClassName("closeUpdate")[0];
 
     function editParsel(feature) {
+        deleteId = feature.A.parselId
         document.getElementById('ilEdit').value = feature.A.parselIl
         document.getElementById('ilceEdit').value = feature.A.parselIlce
         document.getElementById('mahalleEdit').value = feature.A.pareselMahalle
@@ -168,7 +170,7 @@
         editId = feature.A.parselId
         modall.style.display = "block";
     }
-    
+
     spann.onclick = function () {
         document.getElementById('ilEdit').value = " "
         document.getElementById('ilceEdit').value = " "
@@ -219,15 +221,15 @@
             // map.removeInteraction(event)
             map.on('click', callBack)
         });
-        $("#updateParsel").click(function () {
+        $("#updateParsel").click(function () { //update
             modall.style.display = "none";
             var editIl = document.getElementById('ilEdit').value
             var editIlce = document.getElementById('ilceEdit').value
             var editMahalle = document.getElementById('mahalleEdit').value
-            let parselEditJson = {parselId:editId, parselIl: editIl, parselIlce: editIlce, pareselMahalle: editMahalle, wktString: editWktString }
+            let parselEditJson = { parselId: editId, parselIl: editIl, parselIlce: editIlce, pareselMahalle: editMahalle, wktString: editWktString }
             $.ajax({
-                type:"post",
-                url : "https://localhost:44393/api/Parsel/update",
+                type: "post",
+                url: "https://localhost:44393/api/Parsel/update",
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify(parselEditJson),
                 success: successUpdate,
@@ -235,25 +237,40 @@
             })
         })
         $("#deleteParsel").click(function () {
-            console.log("silme...")
+            modall.style.display = "none";
+            console.log(deleteId)
+            $.ajax({
+                type: "delete",
+                url: "https://localhost:44393/api/Parsel/delete/" + deleteId,
+                success: successDelete
+            })
         })
     });
 
     function successSave(res) {
-        document.getElementById('il').value = " "
-        document.getElementById('ilce').value = " "
-        document.getElementById('mahalle').value = " "
+        console.log(res)
+        var a = kaynak.getFeatures();
+        var b = a[a.length - 1];
+        b.set('parselId', res)
+        b.set('parselIl', document.getElementById('il').value)
+        b.set('parselIlce', document.getElementById('ilce').value)
+        b.set('pareselMahalle', document.getElementById('mahalle').value)
+        b.set('wktString', wktString)
+
+
+
         console.log("Kayıt başarılı")
     }
 
-    function successUpdate(res){
+    function successUpdate(res) {
         var a = kaynak.getFeatures();
         a.forEach(element => {
-            if(element.A.parselId == res){
-                element.set('parselIl', document.getElementById('ilEdit').value)
-                element.set('parselIlce', document.getElementById('ilceEdit').value)
-                element.set('pareselMahalle', document.getElementById('mahalleEdit').value)
-            }   
+            if (element.A.parselId == res) {
+                console.log(element)
+                element.A.parselIl = document.getElementById('ilEdit').value
+                element.A.parselIlce = document.getElementById('ilceEdit').value
+                element.A.pareselMahalle = document.getElementById('mahalleEdit').value
+            }
         });
         console.log("güncelleme başarılı")
     }
@@ -271,6 +288,16 @@
             parsel.set('wktString', element.wktString)
             kaynak.addFeature(parsel)
         });
+    }
+
+    function successDelete() {
+        var a = kaynak.getFeatures();
+        a.forEach(element => {
+            if (element.A.parselId == deleteId) {
+                kaynak.removeFeature(element);
+            }
+        });
+        console.log("silme başarılı")
     }
 
     // Herhangi bir yere tıklayınca modal kapanır
