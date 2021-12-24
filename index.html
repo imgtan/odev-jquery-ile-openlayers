@@ -114,10 +114,10 @@
     const typeSelect = document.getElementById('type');
 
     typeSelect.onchange = function () {
-            map.removeInteraction(draw);
-            map.removeInteraction(snap);
-            addInteractions();
-            map.un('click', callBack)
+        map.removeInteraction(draw);
+        map.removeInteraction(snap);
+        addInteractions();
+        map.un('click', callBack)
     };
 
     function addInteractions() {
@@ -125,6 +125,7 @@
             source: kaynak,
             type: typeSelect.value,
         });
+
         map.addInteraction(draw);
         snap = new ol.interaction.Snap({ source: kaynak });
         map.addInteraction(snap);
@@ -219,6 +220,7 @@
             map.removeInteraction(draw)
             map.removeInteraction(snap)
             // map.removeInteraction(event)
+            document.getElementById('type').value = " ";
             map.on('click', callBack)
         });
         $("#updateParsel").click(function () { //update
