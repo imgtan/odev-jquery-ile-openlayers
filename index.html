@@ -177,11 +177,24 @@
     //----------------------------------------------------------------------------------------
     addInteractions()
 
-    modify.on('modifyend', function (feature) {
-        //console.log(feature.features.getArray());
-        // feature = feature.feature;
-        // wktString = wkt.writeFeature(feature);
-        // console.log(wktString)
+    modify.on('modifyend', function (e) {
+        //console.log(wkt.writeFeature(e.features.getArray()[0]));
+        //let editWktId = e.features.getArray()[0].A.parselId
+        let editWktId = e.features.getArray()[0].A.parselId
+        let editWktIl = e.features.getArray()[0].A.parselIl
+        let editWktIlce = e.features.getArray()[0].A.parselIlce
+        let editWktMahalle = e.features.getArray()[0].A.pareselMahalle
+        let editWkt = wkt.writeFeature(e.features.getArray()[0])
+        let wktEditJson = { parselId: editWktId, parselIl: editWktIl, parselIlce: editWktIlce, pareselMahalle: editWktMahalle, wktString: editWkt }
+        $.ajax({
+            type: "post",
+            url: "https://localhost:44393/api/Parsel/update",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(wktEditJson),
+            success: successWktUpdate,
+            dataType: "json",
+        })
+        console.log(wktEditJson)
     });
 
     function drawend(evt) {
@@ -301,6 +314,10 @@
             }
         });
         console.log("silme başarılı")
+    }
+
+    function successWktUpdate() {
+        console.log("wkt guncelleme başarılı")
     }
 
     // Herhangi bir yere tıklayınca modal kapanır
