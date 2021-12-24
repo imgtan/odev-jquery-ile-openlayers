@@ -145,9 +145,7 @@
 
     // İcona tıklayınca modal kapanır
     span.onclick = function () {
-        document.getElementById('il').value = " "
-        document.getElementById('ilce').value = " "
-        document.getElementById('mahalle').value = " "
+        documentSaveClear()
 
         var a = kaynak.getFeatures();
         var b = a[a.length - 1];
@@ -172,14 +170,19 @@
     }
 
     spann.onclick = function () {
-        document.getElementById('ilEdit').value = " "
-        document.getElementById('ilceEdit').value = " "
-        document.getElementById('mahalleEdit').value = " "
+        documentEditClear()
         modall.style.display = "none";
     }
     //ModalEdit finish
     //----------------------------------------------------------------------------------------
     addInteractions()
+
+    modify.on('modifyend', function (feature) {
+        //console.log(feature.features.getArray());
+        // feature = feature.feature;
+        // wktString = wkt.writeFeature(feature);
+        // console.log(wktString)
+    });
 
     function drawend(evt) {
         modalOpen()
@@ -257,9 +260,7 @@
         b.set('pareselMahalle', document.getElementById('mahalle').value)
         b.set('wktString', wktString)
 
-        document.getElementById('il').value = " "
-        document.getElementById('ilce').value = " "
-        document.getElementById('mahalle').value = " "
+        documentSaveClear()
 
         console.log("Kayıt başarılı")
     }
@@ -271,9 +272,7 @@
                 element.A.parselIl = document.getElementById('ilEdit').value
                 element.A.parselIlce = document.getElementById('ilceEdit').value
                 element.A.pareselMahalle = document.getElementById('mahalleEdit').value
-                document.getElementById('ilEdit').value = " "
-                document.getElementById('ilceEdit').value = " "
-                document.getElementById('mahalleEdit').value = " "
+                documentEditClear()
             }
         });
         console.log("güncelleme başarılı")
@@ -307,9 +306,7 @@
     // Herhangi bir yere tıklayınca modal kapanır
     window.onclick = function (event) {
         if (event.target == modal) {
-            document.getElementById('il').value = " "
-            document.getElementById('ilce').value = " "
-            document.getElementById('mahalle').value = " "
+            documentSaveClear()
 
             var a = kaynak.getFeatures();
             var b = a[a.length - 1];
@@ -318,11 +315,21 @@
             modal.style.display = "none";
         }
         else if (event.target == modall) {
-            document.getElementById('ilEdit').value = " "
-            document.getElementById('ilceEdit').value = " "
-            document.getElementById('mahalleEdit').value = " "
+            documentEditClear()
+
             modall.style.display = "none";
         }
+    }
+
+    function documentSaveClear() {
+        document.getElementById('il').value = " "
+        document.getElementById('ilce').value = " "
+        document.getElementById('mahalle').value = " "
+    }
+    function documentEditClear() {
+        document.getElementById('ilEdit').value = " "
+        document.getElementById('ilceEdit').value = " "
+        document.getElementById('mahalleEdit').value = " "
     }
 
 </script>
