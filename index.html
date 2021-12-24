@@ -46,9 +46,6 @@
             <!-- onclick="saveParsel()" -->
         </div>
     </div>
-
-    <!-- Trigger/Open The Modal -->
-    <button id="myBtnEdit">Open Modal</button>
     <div id="myEditModal" class="modalUpdate">
         <div class="modalUpdate-content">
             <span class="closeUpdate">&times;</span>
@@ -73,6 +70,7 @@
 <script type="text/javascript">
     var wkt = new ol.format.WKT()
     var feature, wktString;
+    var editWktString, editId;
     const raster = new ol.layer.Tile({
         source: new ol.source.OSM(),
     });
@@ -156,16 +154,25 @@
 
         modal.style.display = "none";
     }
-
     //ModalSave finish
+
     //ModalEdit start
     var modall = document.getElementById("myEditModal");
-    var btnn = document.getElementById("myBtnEdit");
     var spann = document.getElementsByClassName("closeUpdate")[0];
-    btnn.onclick = function () {
+
+    function editParsel(feature) {
+        document.getElementById('ilEdit').value = feature.A.parselIl
+        document.getElementById('ilceEdit').value = feature.A.parselIlce
+        document.getElementById('mahalleEdit').value = feature.A.pareselMahalle
+        editWktString = feature.A.wktString
+        editId = feature.A.parselId
         modall.style.display = "block";
     }
+    
     spann.onclick = function () {
+        document.getElementById('ilEdit').value = " "
+        document.getElementById('ilceEdit').value = " "
+        document.getElementById('mahalleEdit').value = " "
         modall.style.display = "none";
     }
     //ModalEdit finish
@@ -180,10 +187,7 @@
     }
     function callBack(e) { //dbclick ??????
         map.forEachFeatureAtPixel(e.pixel, function (feature) {
-            // document.getElementById('il').value = feature.A.parselIl
-            // document.getElementById('ilce').value = feature.A.parselIlce
-            // document.getElementById('mahalle').value = feature.A.pareselMahalle
-            console.log(feature.A.wktString)
+            editParsel(feature);
         })
     }
     $(document).ready(function () {
@@ -215,10 +219,22 @@
             // map.removeInteraction(event)
             map.on('click', callBack)
         });
-        $("#updateParsel").click(function (){
-            console.log("guncelleme...")
+        $("#updateParsel").click(function () {
+            modall.style.display = "none";
+            var editIl = document.getElementById('ilEdit').value
+            var editIlce = document.getElementById('ilceEdit').value
+            var editMahalle = document.getElementById('mahalleEdit').value
+            let parselEditJson = {parselId:editId, parselIl: editIl, parselIlce: editIlce, pareselMahalle: editMahalle, wktString: editWktString }
+            $.ajax({
+                type:"post",
+                url : "https://localhost:44393/api/Parsel/update",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(parselEditJson),
+                success: successUpdate,
+                dataType: "json",
+            })
         })
-        $("#deleteParsel").click(function (){
+        $("#deleteParsel").click(function () {
             console.log("silme...")
         })
     });
@@ -228,6 +244,18 @@
         document.getElementById('ilce').value = " "
         document.getElementById('mahalle').value = " "
         console.log("Kayıt başarılı")
+    }
+
+    function successUpdate(res){
+        var a = kaynak.getFeatures();
+        a.forEach(element => {
+            if(element.A.parselId == res){
+                element.set('parselIl', document.getElementById('ilEdit').value)
+                element.set('parselIlce', document.getElementById('ilceEdit').value)
+                element.set('pareselMahalle', document.getElementById('mahalleEdit').value)
+            }   
+        });
+        console.log("güncelleme başarılı")
     }
 
     function parselList(res) {
@@ -259,6 +287,9 @@
             modal.style.display = "none";
         }
         else if (event.target == modall) {
+            document.getElementById('ilEdit').value = " "
+            document.getElementById('ilceEdit').value = " "
+            document.getElementById('mahalleEdit').value = " "
             modall.style.display = "none";
         }
     }
