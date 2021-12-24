@@ -114,17 +114,13 @@
     const typeSelect = document.getElementById('type');
 
     typeSelect.onchange = function () {
-        if (typeSelect.value) {
             map.removeInteraction(draw);
             map.removeInteraction(snap);
             addInteractions();
             map.un('click', callBack)
-        }
     };
 
     function addInteractions() {
-        console.log(typeSelect.value || "Polygon")
-
         draw = new ol.interaction.Draw({
             source: kaynak,
             type: typeSelect.value,
@@ -133,7 +129,6 @@
         snap = new ol.interaction.Snap({ source: kaynak });
         map.addInteraction(snap);
         draw.on('drawend', drawend);
-
     }
     //----------------------------------------------------------------------------------------
     //Modal start
@@ -191,11 +186,12 @@
         //var x = feature.getGeometry().getCoordinates()
         wktString = wkt.writeFeature(feature);
     }
-    function callBack(e) { //dbclick ??????
+    function callBack(e) {
         map.forEachFeatureAtPixel(e.pixel, function (feature) {
             editParsel(feature);
         })
     }
+
     $(document).ready(function () {
         $.ajax({ //list
             type: "get",
@@ -240,9 +236,8 @@
                 dataType: "json",
             })
         })
-        $("#deleteParsel").click(function () {
+        $("#deleteParsel").click(function () { //delete
             modall.style.display = "none";
-            console.log(deleteId)
             $.ajax({
                 type: "delete",
                 url: "https://localhost:44393/api/Parsel/delete/" + deleteId,
@@ -252,7 +247,6 @@
     });
 
     function successSave(res) {
-        console.log(res)
         var a = kaynak.getFeatures();
         var b = a[a.length - 1];
         b.set('parselId', res)
@@ -272,7 +266,6 @@
         var a = kaynak.getFeatures();
         a.forEach(element => {
             if (element.A.parselId == res) {
-                console.log(element)
                 element.A.parselIl = document.getElementById('ilEdit').value
                 element.A.parselIlce = document.getElementById('ilceEdit').value
                 element.A.pareselMahalle = document.getElementById('mahalleEdit').value
