@@ -244,6 +244,13 @@
                     },
                     parameterMap: function (options, operation) {
                         if (operation == "update" && options.models) { //update oldugunda calisacak fonk
+                            let obje = {
+                                parselId: options.models[0].parselId,
+                                parselIl: options.models[0].parselIl,
+                                parselIlce: options.models[0].parselIlce,
+                                pareselMahalle: options.models[0].pareselMahalle
+                            }
+                            updateKendo(obje)
                             return JSON.stringify({
                                 parselId: options.models[0].parselId,
                                 parselIl: options.models[0].parselIl,
@@ -252,6 +259,7 @@
                                 pareselMahalle: options.models[0].pareselMahalle
                             });
                         } else if (operation == "destroy" && options.models) { //delete oldugunda calisacak fonk
+                            successDelete(1, options.models[0].parselId)
                             return options.models[0].parselId
                         }
                     }
@@ -275,7 +283,7 @@
             pageable: true,
             height: 550,
             columns: [
-                { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px"},
+                { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
                 { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
                 { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
@@ -377,18 +385,38 @@
         });
     }
 
-    function successDelete() {
+    function successDelete(x, y) {
         var a = kaynak.getFeatures();
-        a.forEach(element => {
-            if (element.A.parselId == deleteId) {
-                kaynak.removeFeature(element);
-            }
-        });
+        if (x != 1) {
+            a.forEach(element => {
+                if (element.A.parselId == deleteId) {
+                    kaynak.removeFeature(element);
+                }
+            });
+        } else if (x == 1) {
+            a.forEach(element => {
+                if (element.A.parselId == y) {
+                    kaynak.removeFeature(element);
+                }
+            });
+        }
         console.log("silme başarılı")
     }
 
     function successWktUpdate() {
         console.log("wkt guncelleme başarılı")
+    }
+
+    function updateKendo(obje) {
+        var a = kaynak.getFeatures();
+         a.forEach(element => {
+             if (element.A.parselId == obje.parselId) {
+                 element.A.parselIl = obje.parselIl
+                 element.A.parselIlce = obje.parselIlce
+                 element.A.pareselMahalle = obje.pareselMahalle
+             }
+         });
+        console.log("guncelleme basarili")
     }
 
     // Herhangi bir yere tıklayınca modal kapanır
