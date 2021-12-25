@@ -277,8 +277,7 @@
                     }
                 }
             });
-
-        $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup
+        $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup ve listeleme alanı
             dataSource: dataSource,
             pageable: true,
             height: 550,
@@ -287,7 +286,7 @@
                 { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
                 { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
-            editable: "popup"
+            editable: "popup",
         });
         $.ajax({ //list
             type: "get",
@@ -343,6 +342,76 @@
         })
     });
 
+    function listKendo() {
+        // sonradan eklenen veriler icin calisacak kendo
+        var crudServiceBaseUrl = "https://localhost:44393/api/Parsel/",
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: { //listeleme
+                        url: crudServiceBaseUrl + "all",
+                        type: "get",
+                        dataType: "json"
+                    },
+                    update: { //guncelleme
+                        url: crudServiceBaseUrl + "update",
+                        type: "post",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8"
+                    },
+                    destroy: { //silme
+                        url: function (e) {
+                            return crudServiceBaseUrl + "delete/" + e.models[0].parselId;
+                        }, //crudServiceBaseUrl + "delete/",
+                        type: "delete"
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation == "update" && options.models) { //update oldugunda calisacak fonk
+                            let obje = {
+                                parselId: options.models[0].parselId,
+                                parselIl: options.models[0].parselIl,
+                                parselIlce: options.models[0].parselIlce,
+                                pareselMahalle: options.models[0].pareselMahalle
+                            }
+                            updateKendo(obje)
+                            return JSON.stringify({
+                                parselId: options.models[0].parselId,
+                                parselIl: options.models[0].parselIl,
+                                parselIlce: options.models[0].parselIlce,
+                                wktString: options.models[0].wktString,
+                                pareselMahalle: options.models[0].pareselMahalle
+                            });
+                        } else if (operation == "destroy" && options.models) { //delete oldugunda calisacak fonk
+                            successDelete(1, options.models[0].parselId)
+                            return options.models[0].parselId
+                        }
+                    }
+                },
+                batch: true,
+                pageSize: 20,
+                schema: {
+                    model: {
+                        id: "parselId",
+                        fields: {
+                            pareselMahalle: { editable: true, nullable: true },
+                            parselIl: { editable: true, nullable: true },
+                            parselIlce: { editable: true, nullable: true }
+                        }
+                    }
+                }
+            });
+        $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup ve listeleme alanı
+            dataSource: dataSource,
+            pageable: true,
+            height: 550,
+            columns: [
+                { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
+                { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
+                { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+            editable: "popup",
+        });
+    }
+
     function successSave(res) {
         var a = kaynak.getFeatures();
         var b = a[a.length - 1];
@@ -353,7 +422,7 @@
         b.set('wktString', wktString)
 
         documentSaveClear()
-
+        listKendo()
         console.log("Kayıt başarılı")
     }
 
@@ -409,13 +478,13 @@
 
     function updateKendo(obje) {
         var a = kaynak.getFeatures();
-         a.forEach(element => {
-             if (element.A.parselId == obje.parselId) {
-                 element.A.parselIl = obje.parselIl
-                 element.A.parselIlce = obje.parselIlce
-                 element.A.pareselMahalle = obje.pareselMahalle
-             }
-         });
+        a.forEach(element => {
+            if (element.A.parselId == obje.parselId) {
+                element.A.parselIl = obje.parselIl
+                element.A.parselIlce = obje.parselIlce
+                element.A.pareselMahalle = obje.pareselMahalle
+            }
+        });
         console.log("guncelleme basarili")
     }
 
