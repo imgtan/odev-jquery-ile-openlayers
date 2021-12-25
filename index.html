@@ -8,6 +8,18 @@
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.min.css" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.mobile.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.min.css" />
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.mobile.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default-main.min.css" />
+    <script src="https://kendo.cdn.telerik.com/2021.3.1109/js/kendo.all.min.js"></script>
+
     </link>
     <title>OpenLayers Odev</title>
 </head>
@@ -65,6 +77,9 @@
             <button class="btnParselSave" id="deleteParsel">Parseli Sil</button>
         </div>
     </div>
+    <div id="grid"></div>
+
+    <div id="grid"></div>
 
 </body>
 <script type="text/javascript">
@@ -178,8 +193,6 @@
     addInteractions()
 
     modify.on('modifyend', function (e) {
-        //console.log(wkt.writeFeature(e.features.getArray()[0]));
-        //let editWktId = e.features.getArray()[0].A.parselId
         let editWktId = e.features.getArray()[0].A.parselId
         let editWktIl = e.features.getArray()[0].A.parselIl
         let editWktIlce = e.features.getArray()[0].A.parselIlce
@@ -194,7 +207,6 @@
             success: successWktUpdate,
             dataType: "json",
         })
-        console.log(wktEditJson)
     });
 
     function drawend(evt) {
@@ -210,6 +222,65 @@
     }
 
     $(document).ready(function () {
+        var crudServiceBaseUrl = "https://localhost:44393/api/Parsel/",
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: { //listeleme
+                        url: crudServiceBaseUrl + "all",
+                        type: "get",
+                        dataType: "json"
+                    },
+                    update: { //guncelleme
+                        url: crudServiceBaseUrl + "update",
+                        type: "post",
+                        dataType: "json",
+                        contentType: "application/json; charset=utf-8"
+                    },
+                    destroy: { //silme
+                        url: function (e) {
+                            return crudServiceBaseUrl + "delete/" + e.models[0].parselId;
+                        }, //crudServiceBaseUrl + "delete/",
+                        type: "delete"
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation == "update" && options.models) { //update oldugunda calisacak fonk
+                            return JSON.stringify({
+                                parselId: options.models[0].parselId,
+                                parselIl: options.models[0].parselIl,
+                                parselIlce: options.models[0].parselIlce,
+                                wktString: options.models[0].wktString,
+                                pareselMahalle: options.models[0].pareselMahalle
+                            });
+                        } else if (operation == "destroy" && options.models) { //delete oldugunda calisacak fonk
+                            return options.models[0].parselId
+                        }
+                    }
+                },
+                batch: true,
+                pageSize: 20,
+                schema: {
+                    model: {
+                        id: "parselId",
+                        fields: {
+                            pareselMahalle: { editable: true, nullable: true },
+                            parselIl: { editable: true, nullable: true },
+                            parselIlce: { editable: true, nullable: true }
+                        }
+                    }
+                }
+            });
+
+        $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup
+            dataSource: dataSource,
+            pageable: true,
+            height: 550,
+            columns: [
+                { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px"},
+                { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
+                { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+            editable: "popup"
+        });
         $.ajax({ //list
             type: "get",
             url: "https://localhost:44393/api/Parsel/all",
@@ -236,7 +307,7 @@
             map.removeInteraction(draw)
             map.removeInteraction(snap)
             // map.removeInteraction(event)
-            document.getElementById('type').value = " ";
+            document.getElementById('type').value = "Seçiniz";
             map.on('click', callBack)
         });
         $("#updateParsel").click(function () { //update
