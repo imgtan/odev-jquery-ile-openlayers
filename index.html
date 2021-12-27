@@ -87,7 +87,7 @@
     var wkt = new ol.format.WKT()
     var feature, wktString;
     var editWktString, editId;
-    var deleteId;
+    var deleteId;var grid;
 
     const raster = new ol.layer.Tile({
         source: new ol.source.OSM(),
@@ -263,6 +263,7 @@
                             });
                         } else if (operation == "destroy" && options.models) { //delete oldugunda calisacak fonk
                             successDelete(1, options.models[0].parselId)
+                            grid.dataSource.read();
                             return options.models[0].parselId
                         }
                     }
@@ -280,7 +281,7 @@
                     }
                 }
             });
-        $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup ve listeleme alanı
+            $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup ve listeleme alanı
             dataSource: dataSource,
             pageable: true,
             height: 550,
@@ -292,9 +293,9 @@
             editable: {
                 mode: "popup",
                 dblClickEdit: false
-            },
-            selectable: "single"
+            }
         });
+        grid = $("#grid").data("kendoGrid");
         $.ajax({ //list
             type: "get",
             url: "https://localhost:44393/api/Parsel/all",
@@ -351,77 +352,7 @@
     });
 
     function listKendo() {
-        // sonradan eklenen veriler icin calisacak kendo
-        var crudServiceBaseUrl = "https://localhost:44393/api/Parsel/",
-            dataSource = new kendo.data.DataSource({
-                transport: {
-                    read: { //listeleme
-                        url: crudServiceBaseUrl + "all",
-                        type: "get",
-                        dataType: "json"
-                    },
-                    update: { //guncelleme
-                        url: crudServiceBaseUrl + "update",
-                        type: "post",
-                        dataType: "json",
-                        contentType: "application/json; charset=utf-8"
-                    },
-                    destroy: { //silme
-                        url: function (e) {
-                            return crudServiceBaseUrl + "delete/" + e.models[0].parselId;
-                        }, //crudServiceBaseUrl + "delete/",
-                        type: "delete"
-                    },
-                    parameterMap: function (options, operation) {
-                        if (operation == "update" && options.models) { //update oldugunda calisacak fonk
-                            let obje = {
-                                parselId: options.models[0].parselId,
-                                parselIl: options.models[0].parselIl,
-                                parselIlce: options.models[0].parselIlce,
-                                pareselMahalle: options.models[0].pareselMahalle
-                            }
-                            updateKendo(obje)
-                            return JSON.stringify({
-                                parselId: options.models[0].parselId,
-                                parselIl: options.models[0].parselIl,
-                                parselIlce: options.models[0].parselIlce,
-                                wktString: options.models[0].wktString,
-                                pareselMahalle: options.models[0].pareselMahalle
-                            });
-                        } else if (operation == "destroy" && options.models) { //delete oldugunda calisacak fonk
-                            successDelete(1, options.models[0].parselId)
-                            return options.models[0].parselId
-                        }
-                    }
-                },
-                batch: true,
-                pageSize: 20,
-                schema: {
-                    model: {
-                        id: "parselId",
-                        fields: {
-                            pareselMahalle: { editable: true, nullable: true },
-                            parselIl: { editable: true, nullable: true },
-                            parselIlce: { editable: true, nullable: true }
-                        }
-                    }
-                }
-            });
-        $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup ve listeleme alanı
-            dataSource: dataSource,
-            pageable: true,
-            height: 500,
-            columns: [
-                { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
-                { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
-                { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
-                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
-            editable: {
-                mode: "popup",
-                dblClickEdit: false
-            },
-            selectable: "single"
-        });
+       grid.dataSource.read();
     }
 
     function successSave(res) {
@@ -531,11 +462,9 @@
         document.getElementById('mahalleEdit').value = " "
     }
 
-
+    
     function showKendo(params) {
-        console.log(params)
-        var grid = $("#grid").data("kendoGrid");
-        //console.log(grid.dataSource.get(params.A.parselId).uid)
+        console.log(grid.dataSource.get(params.A.parselId).uid)
         grid.editRow(grid.tbody.find("tr[data-uid='" + grid.dataSource.get(params.A.parselId).uid + "']"))
     }
 
