@@ -11,12 +11,7 @@
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.common.min.css" />
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.min.css" />
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.mobile.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
-    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.common.min.css" />
-    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.min.css" />
-    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.mobile.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default-main.min.css" />
     <script src="https://kendo.cdn.telerik.com/2021.3.1109/js/kendo.all.min.js"></script>
 
@@ -103,16 +98,16 @@
     const vector = new ol.layer.Vector({
         source: kaynak,
         style: new ol.style.Style({
-            fill: new ol.style.Fill({
+            fill: new ol.style.Fill({ //polygon icin
                 color: 'rgba(255, 255, 255, 0.5)',
             }),
-            stroke: new ol.style.Stroke({
-                color: '#ffcc33',
+            stroke: new ol.style.Stroke({ //dis cizgiler icin
+                color: 'red',
                 width: 2,
             }),
             image: new ol.style.Circle({
                 radius: 7,
-                fill: new ol.style.Fill({
+                fill: new ol.style.Fill({ //point icin
                     color: '#ffcc33',
                 }),
             }),
@@ -224,7 +219,8 @@
     }
     function callBack(e) {
         map.forEachFeatureAtPixel(e.pixel, function (feature) {
-            editParsel(feature);
+            //editParsel(feature);
+            showKendo(feature)
         })
     }
 
@@ -292,15 +288,11 @@
                 { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
                 { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
                 { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
-                {
-                    command: ["edit", "destroy", {
-                        name: 'Parseli Göster', click: function (e) {
-                            var di = this.dataItem($(e.currentTarget).closest("tr"));
-                            if(di != null){console.log(di.parselId)}
-                        }
-                    }], title: "&nbsp;", width: "250px"
-                }],
-            editable: "popup",
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+            editable: {
+                mode: "popup",
+                dblClickEdit: false
+            },
             selectable: "single"
         });
         $.ajax({ //list
@@ -328,6 +320,7 @@
         $("#editParsel").click(function () { //edit
             map.removeInteraction(draw)
             map.removeInteraction(snap)
+            map.removeInteraction(modify)
             // map.removeInteraction(event)
             document.getElementById('type').value = "Seçiniz";
             map.on('click', callBack)
@@ -422,16 +415,12 @@
                 { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
                 { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
                 { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
-                {
-                    command: ["edit", "destroy", {
-                        name: 'Parseli Göster', click: function (e) {
-                            var di = this.dataItem($(e.currentTarget).closest("tr"));
-                            if(di.parselId){console.log(di.parselId)}
-                        }
-                    }], title: "&nbsp;", width: "250px"
-                }],
-            editable: "popup",
-            selectable: "multiple"
+                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+            editable: {
+                mode: "popup",
+                dblClickEdit: false
+            },
+            selectable: "single"
         });
     }
 
@@ -542,6 +531,15 @@
         document.getElementById('mahalleEdit').value = " "
     }
 
+
+    function showKendo(params) {
+        console.log(params)
+        var grid = $("#grid").data("kendoGrid");
+        //console.log(grid.dataSource.get(params.A.parselId).uid)
+        grid.editRow(grid.tbody.find("tr[data-uid='" + grid.dataSource.get(params.A.parselId).uid + "']"))
+    }
+
+    // grid.editRow(grid.tbody.find("tr[data-uid='" + grid.dataSource.get(422).uid + "']"))
 </script>
 
 </html>
