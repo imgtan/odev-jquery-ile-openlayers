@@ -20,6 +20,13 @@
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default-main.min.css" />
     <script src="https://kendo.cdn.telerik.com/2021.3.1109/js/kendo.all.min.js"></script>
 
+    <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1207/styles/kendo.default-main.min.css" />
+
+    <script src="https://kendo.cdn.telerik.com/2021.3.1207/js/jquery.min.js"></script>
+
+
+    <script src="https://kendo.cdn.telerik.com/2021.3.1207/js/kendo.all.min.js"></script>
+
     </link>
     <title>OpenLayers Odev</title>
 </head>
@@ -77,7 +84,6 @@
             <button class="btnParselSave" id="deleteParsel">Parseli Sil</button>
         </div>
     </div>
-    <div id="grid"></div>
 
     <div id="grid"></div>
 
@@ -87,6 +93,7 @@
     var feature, wktString;
     var editWktString, editId;
     var deleteId;
+
     const raster = new ol.layer.Tile({
         source: new ol.source.OSM(),
     });
@@ -285,8 +292,12 @@
                 { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
                 { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
                 { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
-                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+                { command: ["edit", "destroy",{name : 'git', click:function (e) {
+                    var di = this.dataItem($(e.currentTarget).closest("tr"));
+                    console.log(di.parselId)
+                }}], title: "&nbsp;", width: "250px" }],
             editable: "popup",
+            selectable: "single"
         });
         $.ajax({ //list
             type: "get",
@@ -402,13 +413,14 @@
         $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup ve listeleme alanı
             dataSource: dataSource,
             pageable: true,
-            height: 550,
+            height: 500,
             columns: [
                 { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
                 { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
                 { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
                 { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
             editable: "popup",
+            selectable: "multiple"
         });
     }
 
