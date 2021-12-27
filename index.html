@@ -11,15 +11,10 @@
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.common.min.css" />
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.min.css" />
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default.mobile.min.css" />
-
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1109/styles/kendo.default-main.min.css" />
     <script src="https://kendo.cdn.telerik.com/2021.3.1109/js/kendo.all.min.js"></script>
-
     <link rel="stylesheet" href="https://kendo.cdn.telerik.com/2021.3.1207/styles/kendo.default-main.min.css" />
-
     <script src="https://kendo.cdn.telerik.com/2021.3.1207/js/jquery.min.js"></script>
-
-
     <script src="https://kendo.cdn.telerik.com/2021.3.1207/js/kendo.all.min.js"></script>
 
     </link>
@@ -87,7 +82,8 @@
     var wkt = new ol.format.WKT()
     var feature, wktString;
     var editWktString, editId;
-    var deleteId;var grid;
+    var deleteId; 
+    var grid;
 
     const raster = new ol.layer.Tile({
         source: new ol.source.OSM(),
@@ -281,7 +277,7 @@
                     }
                 }
             });
-            $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup ve listeleme alanı
+        $("#grid").kendoGrid({ //edit yapilacak parsele tiklanildigin da acilacak popup ve listeleme alanı
             dataSource: dataSource,
             pageable: true,
             height: 550,
@@ -321,7 +317,7 @@
         $("#editParsel").click(function () { //edit
             map.removeInteraction(draw)
             map.removeInteraction(snap)
-            map.removeInteraction(modify)
+            // map.removeInteraction(modify)    
             // map.removeInteraction(event)
             document.getElementById('type').value = "Seçiniz";
             map.on('click', callBack)
@@ -352,7 +348,7 @@
     });
 
     function listKendo() {
-       grid.dataSource.read();
+        grid.dataSource.read();
     }
 
     function successSave(res) {
@@ -462,10 +458,13 @@
         document.getElementById('mahalleEdit').value = " "
     }
 
-    
+
     function showKendo(params) {
-        console.log(grid.dataSource.get(params.A.parselId).uid)
-        grid.editRow(grid.tbody.find("tr[data-uid='" + grid.dataSource.get(params.A.parselId).uid + "']"))
+        if(params.A.parselId){
+            console.log(grid.dataSource.get(params.A.parselId).uid)
+            grid.editRow(grid.tbody.find("tr[data-uid='" + grid.dataSource.get(params.A.parselId).uid + "']"))
+        }
+         //ekrana ilgili parselin popup u cikiyor
     }
 
     // grid.editRow(grid.tbody.find("tr[data-uid='" + grid.dataSource.get(422).uid + "']"))
