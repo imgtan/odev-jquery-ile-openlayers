@@ -292,10 +292,14 @@
                 { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
                 { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
                 { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
-                { command: ["edit", "destroy",{name : 'git', click:function (e) {
-                    var di = this.dataItem($(e.currentTarget).closest("tr"));
-                    console.log(di.parselId)
-                }}], title: "&nbsp;", width: "250px" }],
+                {
+                    command: ["edit", "destroy", {
+                        name: 'Parseli Göster', click: function (e) {
+                            var di = this.dataItem($(e.currentTarget).closest("tr"));
+                            if(di != null){console.log(di.parselId)}
+                        }
+                    }], title: "&nbsp;", width: "250px"
+                }],
             editable: "popup",
             selectable: "single"
         });
@@ -418,7 +422,14 @@
                 { field: "parselIl", title: "Parsel İl", format: "{0:c}", width: "80px" },
                 { field: "parselIlce", title: "Parsel İlçe", format: "{0:c}", width: "80px" },
                 { field: "pareselMahalle", title: "Parsel Mahalle", format: "{0:c}", width: "80px" },
-                { command: ["edit", "destroy"], title: "&nbsp;", width: "250px" }],
+                {
+                    command: ["edit", "destroy", {
+                        name: 'Parseli Göster', click: function (e) {
+                            var di = this.dataItem($(e.currentTarget).closest("tr"));
+                            if(di.parselId){console.log(di.parselId)}
+                        }
+                    }], title: "&nbsp;", width: "250px"
+                }],
             editable: "popup",
             selectable: "multiple"
         });
